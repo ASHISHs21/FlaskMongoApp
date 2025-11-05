@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, jsonify
 from pymongo import MongoClient
 import json, os
 from dotenv import load_dotenv
-import uuid, hashlib
 
 # Load environment variables
 load_dotenv()
@@ -14,7 +13,6 @@ mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)
 db = client["flask_database"]
 collection = db["students"]
-todo_collection = db["todos"]
 
 # --- 1️⃣ API Route: Return JSON data from backend file ---
 @app.route('/api', methods=['GET'])
@@ -53,42 +51,6 @@ def form_page():
 @app.route('/success')
 def success_page():
     return render_template('success.html')
-
-
-# --- 4️⃣ New Route: /submittodoitem (Master_2 Feature) ---
-@app.route('/submittodoitem', methods=['POST'])
-def submittodoitem():
-    try:
-        # Get data from frontend (POST request)
-        item_name = request.form.get('itemName')
-        item_description = request.form.get('itemDescription')
-
-        if not item_name or not item_description:
-            return jsonify({"error": "Both itemName and itemDescription are required"}), 400
-
-        # Optional: Generate UUID and hash (for later use)
-        item_uuid = str(uuid.uuid4())
-        item_hash = hashlib.sha256(item_name.encode()).hexdigest()
-
-        # Store in MongoDB (todos collection)
-        todo_collection.insert_one({
-            "itemName": item_name,
-            "itemDescription": item_description,
-            "itemUUID": item_uuid,
-            "itemHash": item_hash
-        })
-
-        # Return JSON success message
-        return jsonify({
-            "message": "To-Do item submitted successfully!",
-            "itemName": item_name,
-            "itemDescription": item_description,
-            "itemUUID": item_uuid,
-            "itemHash": item_hash
-        }), 201
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
