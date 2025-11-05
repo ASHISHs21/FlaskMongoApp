@@ -9,12 +9,21 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Connect to MongoDB Atlas
+# --- ✅ MongoDB Atlas Connection ---
 mongo_uri = os.getenv("MONGO_URI")
-client = MongoClient(mongo_uri)
-db = client["flask_database"]
-collection = db["students"]
-todo_collection = db["todos"]
+
+if not mongo_uri:
+    raise ValueError("❌ MONGO_URI not found in .env file")
+
+try:
+    client = MongoClient(mongo_uri)
+    db = client["flask_database"]
+    collection = db["students"]
+    todo_collection = db["todos"]
+except Exception as e:
+    print("MongoDB Connection Error:", e)
+    raise
+
 
 # --- 1️⃣ API Route: Return JSON data from backend file ---
 @app.route('/api', methods=['GET'])
@@ -27,7 +36,7 @@ def get_data():
         return jsonify({"error": str(e)}), 500
 
 
-# --- 2️⃣ Frontend Form: Insert user data into MongoDB ---
+# --- 2️⃣ Frontend Form: Insert data into MongoDB ---
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
     message = ""
@@ -37,10 +46,9 @@ def form_page():
             email = request.form['email']
             age = int(request.form['age'])
 
-            # Insert into MongoDB
             collection.insert_one({"name": name, "email": email, "age": age})
-
             return redirect('/success')
+
         except Exception as e:
             message = f"Error: {str(e)}"
 
@@ -53,7 +61,13 @@ def success_page():
     return render_template('success.html')
 
 
-# --- 4️⃣ New Backend Route: /submittodoitem (Master_2 feature) ---
+# --- ✅ 4️⃣ To-Do Page (Frontend Preview Form) ---
+@app.route('/todo', methods=['GET'])
+def todo_page():
+    return render_template('todo.html')
+
+
+# --- 5️⃣ /submittodoitem Route (POST To-Do items to MongoDB) ---
 @app.route('/submittodoitem', methods=['POST'])
 def submittodoitem():
     try:
@@ -61,13 +75,13 @@ def submittodoitem():
         item_description = request.form.get('itemDescription')
 
         if not item_name or not item_description:
-            return jsonify({"error": "Both itemName and itemDescription are required"}), 400
+            return render_template('todo.html', message="❌ Both fields are required!")
 
         # Generate UUID and Hash
         item_uuid = str(uuid.uuid4())
         item_hash = hashlib.sha256(item_name.encode()).hexdigest()
 
-        # Store in MongoDB
+        # Store To-Do in MongoDB Atlas
         todo_collection.insert_one({
             "itemName": item_name,
             "itemDescription": item_description,
@@ -75,16 +89,10 @@ def submittodoitem():
             "itemHash": item_hash
         })
 
-        return jsonify({
-            "message": "To-Do item submitted successfully!",
-            "itemName": item_name,
-            "itemDescription": item_description,
-            "itemUUID": item_uuid,
-            "itemHash": item_hash
-        }), 201
+        return render_template('todo_success.html', itemName=item_name)
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return render_template('todo.html', message=f"Error: {str(e)}")
 
 
 if __name__ == '__main__':

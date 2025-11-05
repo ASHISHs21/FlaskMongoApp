@@ -1,28 +1,25 @@
 <!DOCTYPE html>
 <html>
-<head><title>To-Do Form</title></head>
+<head>
+    <title>Submit To-Do Item</title>
+</head>
 <body>
-  <h2>To-Do Form</h2>
-  <form method="POST" action="/submittodoitem">
-    <label>Item Name:</label><br>
-    <input type="text" name="itemName" required><br><br>
-    <label>Item Description:</label><br>
-    <input type="text" name="itemDescription" required><br><br>
-    <label>Item ID:</label><br>
-    <input type="text" name="itemID"><br><br>
-    <label>Item UUID:</label><br>
-    <input type="text" name="itemUUID"><br><br>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <label>Item Hash:</label><br>
-    <input type="text" name="itemHash"><br><br>
-=======
->>>>>>> 3ebdcb9 (Added Item UUID field)
-=======
-    <label>Item Hash:</label><br>
-    <input type="text" name="itemHash"><br><br>
->>>>>>> 5fed4eb (Added Item Hash field)
-    <button type="submit">Submit</button>
-  </form>
+    <h2>Submit a To-Do Item</h2>
+
+    <form action="/submittodoitem" method="POST">
+        <label for="itemName">Item Name:</label><br>
+        <input type="text" name="itemName" required><br><br>
+
+        <label for="itemDescription">Item Description:</label><br>
+        <textarea name="itemDescription" required></textarea><br><br>
+
+        <button type="submit">Submit To-Do</button>
+    </form>
+
+    {% if message %}
+        <p style="color:red;">{{ message }}</p>
+    {% endif %}
+
+    <p><a href="/">Back to main form</a></p>
 </body>
 </html>
