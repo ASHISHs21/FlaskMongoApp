@@ -1,5 +1,6 @@
 [
-    {"id": 1, "name": "Ashish", "marks": 85},
-    {"id": 2, "name": "Riya", "marks": 90},
-    {"id": 3, "name": "Aman", "marks": 78}
+  {"name": "Ashish", "email": "ashish@example.com"},
+  {"name": "Tutedude", "email": "tutedude@example.com"},
+  {"name": "New User", "email": "newuser@example.com"},
+  {"name": "Flask Student", "email": "flaskstudent@example.com"}
 ]
